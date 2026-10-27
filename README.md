@@ -6,8 +6,9 @@ bindet das Board über die native ESPHome-API ein, ein MQTT-Broker ist nicht nö
 
 **Stand 2026-10-27:** An Fabians Lampe getestet. Der Selbsttest hat 24 von 24 Einstellungen umgesetzt und
 jede per frischer Statusabfrage bestätigt. Dabei waren 146 Funkpakete unterwegs, keines blieb unbestätigt.
-Die Fernbedienung wird mitgehört. Noch **nicht in Home Assistant**, weil im `secrets.yaml` noch keine
-WLAN-Zugangsdaten stehen. Das Board läuft derzeit mit Platzhalter-WLAN und `wifi_reboot_timeout: 0s`.
+Die Fernbedienung wird mitgehört. Noch **nicht in Home Assistant**: Das erste Board ist am Abend
+beschädigt worden (siehe GND-Falle unten), Ersatz mit USB-C ist bestellt. Die WLAN-Daten stehen im
+lokalen `secrets.yaml`, die Firmware ist dafür gebaut.
 
 ## Was es kann
 
@@ -27,8 +28,9 @@ da“) liefert die Lampe nicht. Der Sensor steuert nur ihr eigenes Abschalten.
 
 ## Hardware und Verdrahtung
 
-ESP32-DevKit (ESP-WROOM-32, CP2102, 38 Pins). Das BM5602 liegt mit der Bauteilseite nach oben vor dir, die
-Antenne zeigt nach oben. Pad 1 ist dann das linke der neun Pads an der Unterkante.
+ESP32-Board mit ESP-WROOM-32 oder -WROVER (getestet mit einem 38-Pin-DevKit mit CP2102). Das BM5602 liegt
+mit der Bauteilseite nach oben vor dir, die Antenne zeigt nach oben. Pad 1 ist dann das linke der neun Pads
+an der Unterkante.
 
 | BM5602-Pad | Signal | DevKit-Pin | Kabel (Fabians Exemplar) |
 |---|---|---|---|
@@ -37,12 +39,18 @@ Antenne zeigt nach oben. Pad 1 ist dann das linke der neun Pads an der Unterkant
 | 4 | CSN | G5 | gelb, links |
 | 5 | SCK | G18 | schwarz |
 | 6 | GIO2 (SDO) | G19 | blau |
-| 7 | SDIO | G23 | gelb, rechts |
+| 7 | SDIO | G22 (bis 2026-10-27 G23) | gelb, rechts |
 | 8 | GIO3/TBCLK | G25 | dunkelgrün, **wird nicht benutzt** |
 | 3, 9 | GIO1, GIO4 | frei | weiß, rot rechts (ungenutzt angelötet) |
 
 - Pad 1 erkennst du mit dem Durchgangsprüfer: Nur dieses Pad piepst gegen die zwei seitlichen Massepads.
-- G18/G23/G19 sind die VSPI-Standardpins, CS liegt auf G5 (Strapping-Pin, als CS unkritisch).
+- G18 und G19 sind VSPI-Pins, CS liegt auf G5 (Strapping-Pin, als CS unkritisch). SDIO liegt auf G22, weil
+  nicht jedes Board G23 herausführt; die SPI-Matrix des ESP32 legt das Signal bei 1 MHz ohne Nachteil um.
+- **GND-Falle:** Manche DevKit-Nachbauten bedrucken den Pin neben 5V mit „GND“. Beim Original-DevKitC liegt
+  dort CMD, eine Leitung zum Flash, und auch auf Fabians Board war er nicht mit GND verbunden. Am 2026-10-27
+  hing das Minus eines USB-C-PD-Boards daran; der Rückstrom lief über die Schutzdiode der Flash-Leitung, und
+  das Board startet seitdem nicht mehr. Jeden GND-Pin vor dem Anlöten per Durchgangsprüfer gegen das Gehäuse
+  der USB-Buchse prüfen.
 - Pad 8 hängt nur als Reserve für das TBCLK-Verfahren von NickCao dran (siehe unten).
 - Die Modulantenne gehört weg von Metall und weg von der ESP32-Antenne.
 

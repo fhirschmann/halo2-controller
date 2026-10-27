@@ -44,10 +44,11 @@ ota:
   - platform: esphome
     encryption:
 
-# VSPI-Standardpins, wie bei kuzmin-no
+# VSPI-Pins, aber SDIO auf GPIO22: das WROVER-E-Board mit USB-C führt GPIO23 nicht heraus
+# (die SPI-Matrix legt jedes Signal auf jeden Pin, bei 1 MHz ohne Nachteil)
 spi:
   clk_pin: GPIO18   # SCK  (BM5602 Pad 5)
-  mosi_pin: GPIO23  # SDIO (BM5602 Pad 7)
+  mosi_pin: GPIO22  # SDIO (BM5602 Pad 7)
   miso_pin: GPIO19  # GIO2 (BM5602 Pad 6)
 
 halo2:
