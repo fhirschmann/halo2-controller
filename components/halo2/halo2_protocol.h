@@ -7,7 +7,7 @@
 #include "esphome/core/helpers.h"
 #include "lamp_state.h"
 
-// Canonical payload representation and the LR1121's 9-bit PCF on-air format.
+// Canonical payload representation and the 9-bit PCF on-air format.
 namespace halo2_protocol {
 using esphome::halo2::Command;
 using enum esphome::halo2::Command;
@@ -15,7 +15,6 @@ using esphome::halo2::LampSelection;
 using esphome::halo2::LampState;
 using esphome::halo2::UltrasonicTimeout;
 using Address = std::array<uint8_t, 4>;
-constexpr Address RADIO_ADDRESS{0x9C, 0xEA, 0xBB, 0x86};
 constexpr std::array<uint8_t, 3> RADIO_CHANNELS{5, 46, 75};
 constexpr uint8_t RADIO_CHANNEL = RADIO_CHANNELS[0];
 constexpr unsigned RADIO_BASE_FREQUENCY_MHZ = 2400;
@@ -72,11 +71,11 @@ struct ReceivedPacket {
   bool is_reply() const { return direction == PacketDirection::REPLY; }
 };
 
-constexpr Address air_address(const Address &address = RADIO_ADDRESS) {
+constexpr Address air_address(const Address &address) {
   return {address[3], address[2], address[1], address[0]};
 }
 
-inline uint16_t halo_crc(uint8_t pcf, const Payload &payload, const Address &address = RADIO_ADDRESS) {
+inline uint16_t halo_crc(uint8_t pcf, const Payload &payload, const Address &address) {
   const auto address_bytes = air_address(address);
   uint16_t crc = esphome::crc16be(address_bytes.data(), address_bytes.size(), CRC_INITIAL, CRC_POLYNOMIAL);
   // The leading PCF bit is zero for a ten-byte payload and participates in CRC.
@@ -105,36 +104,17 @@ inline uint8_t request_pcf(uint8_t pid) {
   return static_cast<uint8_t>((PAYLOAD_SIZE << PCF_LENGTH_SHIFT) | ((pid << PCF_PID_SHIFT) & PCF_PID_MASK));
 }
 
-inline Frame make_frame(uint8_t pcf, const Payload &payload, const Address &address = RADIO_ADDRESS) {
+inline Frame make_frame(uint8_t pcf, const Payload &payload, const Address &address) {
   return {pcf, payload, esphome::convert_big_endian(halo_crc(pcf, payload, address))};
 }
 
-inline AirFrame make_air_frame(uint8_t pcf, const Payload &payload, const Address &address) {
-  const auto frame = esphome::bit_cast<FrameBytes>(make_frame(pcf, payload, address));
-  AirFrame air{};
-  for (size_t i = 0; i < frame.size(); ++i) {
-    air[i] |= frame[i] >> 1U;
-    air[i + 1] |= static_cast<uint8_t>(frame[i] << 7U);
-  }
-  return air;
-}
-
-inline bool decode_frame(const uint8_t *raw, size_t length, ReceivedPacket &packet,
-                         const Address &address = RADIO_ADDRESS, bool allow_reply = false) {
-  packet = {};
-  if (length != FRAME_SIZE) return false;
-  Frame frame;
-  std::memcpy(&frame, raw, sizeof(frame));
-  const auto &payload = frame.payload;
+// Validates the ten payload bytes shared by requests, replies and ACK payloads.
+inline bool decode_payload(const Payload &payload, ReceivedPacket &packet) {
   if (payload.ultrasonic_timeout > UltrasonicTimeout::MINUTES_15 || payload.suffix != PACKET_SUFFIX) return false;
-  // Bit 0 is No-ACK: lamp replies set it. Discovery accepts requests only;
-  // normal reception may decode replies for a matching status query.
   // Favorite snapshots use the same payload; 0x06 remains unsupported.
-  if ((frame.pcf >> PCF_LENGTH_SHIFT) != PAYLOAD_SIZE || (!allow_reply && (frame.pcf & PCF_NO_ACK)) ||
-      (payload.command > Command::ULTRASONIC_TIMEOUT && payload.command != Command::FAVORITE_RECALL &&
-       payload.command != Command::FAVORITE_SAVE))
+  if (payload.command > Command::ULTRASONIC_TIMEOUT && payload.command != Command::FAVORITE_RECALL &&
+      payload.command != Command::FAVORITE_SAVE)
     return false;
-  if (halo_crc(frame.pcf, payload, address) != esphome::convert_big_endian(frame.crc_be)) return false;
   const auto selection = static_cast<LampSelection>(payload.control.mode);
   const uint16_t temperature = esphome::convert_big_endian(payload.front_temperature_be);
   if (selection > LampSelection::BOTH || payload.front_brightness < esphome::halo2::MIN_BRIGHTNESS_PERCENT ||
@@ -143,8 +123,6 @@ inline bool decode_frame(const uint8_t *raw, size_t length, ReceivedPacket &pack
       payload.back_brightness > esphome::halo2::MAX_BRIGHTNESS_PERCENT ||
       temperature < esphome::halo2::MIN_TEMPERATURE_K || temperature > esphome::halo2::MAX_TEMPERATURE_K)
     return false;
-  packet.pcf = frame.pcf;
-  packet.direction = frame.pcf & PCF_NO_ACK ? PacketDirection::REPLY : PacketDirection::REQUEST;
   packet.command = payload.command;
   auto &state = packet.state;
   state.power = payload.control.power;
@@ -157,6 +135,40 @@ inline bool decode_frame(const uint8_t *raw, size_t length, ReceivedPacket &pack
   return true;
 }
 
+inline bool decode_frame(const uint8_t *raw, size_t length, ReceivedPacket &packet, const Address &address,
+                         bool allow_reply = false) {
+  packet = {};
+  if (length != FRAME_SIZE) return false;
+  Frame frame;
+  std::memcpy(&frame, raw, sizeof(frame));
+  // Bit 0 is No-ACK: lamp replies set it. Passive reception follows the
+  // controller's requests; replies to our own requests arrive as ACK payloads.
+  if ((frame.pcf >> PCF_LENGTH_SHIFT) != PAYLOAD_SIZE || (!allow_reply && (frame.pcf & PCF_NO_ACK))) return false;
+  if (halo_crc(frame.pcf, frame.payload, address) != esphome::convert_big_endian(frame.crc_be)) return false;
+  if (!decode_payload(frame.payload, packet)) {
+    packet = {};
+    return false;
+  }
+  packet.pcf = frame.pcf;
+  packet.direction = frame.pcf & PCF_NO_ACK ? PacketDirection::REPLY : PacketDirection::REQUEST;
+  return true;
+}
+
+// An ACK payload answers the request sent with request_pcf. The packet engine
+// matched its PID and checked its CRC in hardware.
+inline bool decode_reply(const uint8_t *raw, uint8_t request_pcf, ReceivedPacket &packet) {
+  packet = {};
+  Payload payload;
+  std::memcpy(&payload, raw, sizeof(payload));
+  if (!decode_payload(payload, packet)) {
+    packet = {};
+    return false;
+  }
+  packet.pcf = static_cast<uint8_t>(request_pcf | PCF_NO_ACK);
+  packet.direction = PacketDirection::REPLY;
+  return true;
+}
+
 inline bool decode_air_frame(const uint8_t *raw, size_t length, ReceivedPacket &packet, const Address &address,
                              bool allow_reply = false) {
   packet = {};
@@ -166,27 +178,4 @@ inline bool decode_air_frame(const uint8_t *raw, size_t length, ReceivedPacket &
   return decode_frame(frame.data(), frame.size(), packet, address, allow_reply);
 }
 
-// Discovery uses an alternating preamble byte as the radio sync word, leaving
-// the unknown address in the FIFO. Search every bit phase: sync acquisition
-// can start partway through the preamble, not necessarily on a byte boundary.
-inline bool discover_address(const uint8_t *data, size_t length, Address &address, ReceivedPacket &received) {
-  received = {};
-  constexpr size_t packet_bits = Address{}.size() * 8 + AIR_FRAME_BITS;
-  if (length * 8 < packet_bits) return false;
-  std::array<uint8_t, Address{}.size() + AIR_FRAME_SIZE> packet{};
-  for (size_t start = 0; start + packet_bits <= length * 8; ++start) {
-    for (size_t i = 0; i < packet.size(); ++i) {
-      const size_t bit = start + i * 8;
-      const unsigned shift = bit % 8;
-      packet[i] = static_cast<uint8_t>(data[bit / 8] << shift);
-      if (shift && bit / 8 + 1 < length) packet[i] |= data[bit / 8 + 1] >> (8 - shift);
-    }
-    const Address candidate{packet[3], packet[2], packet[1], packet[0]};
-    if (!decode_air_frame(packet.data() + candidate.size(), AIR_FRAME_SIZE, received, candidate)) continue;
-    address = candidate;
-    return true;
-  }
-  received = {};
-  return false;
-}
 }  // namespace halo2_protocol

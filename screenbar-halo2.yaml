@@ -1,0 +1,102 @@
+# BenQ ScreenBar HALO 2 über BM5602-60-1 an einem ESP32-DevKit (ESP-WROOM-32).
+# Verdrahtung und Hintergrund: README.md
+substitutions:
+  # Testbuild: esphome -s self_test true -s wifi_reboot_timeout 0s run screenbar-halo2.yaml
+  self_test: "false"
+  wifi_reboot_timeout: 15min
+
+esphome:
+  name: screenbar-halo2
+  friendly_name: ScreenBar
+  min_version: 2026.10.0
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [halo2]
+
+logger:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  min_auth_mode: WPA2
+  reboot_timeout: ${wifi_reboot_timeout}
+  ap:
+    ssid: "ScreenBar Recovery"
+    password: !secret fallback_password
+
+captive_portal:
+
+api:
+  reboot_timeout: 0s
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  # Verschlüsselt mit dem API-Schlüssel
+  - platform: esphome
+    encryption:
+
+# VSPI-Standardpins, wie bei kuzmin-no
+spi:
+  clk_pin: GPIO18   # SCK  (BM5602 Pad 5)
+  mosi_pin: GPIO23  # SDIO (BM5602 Pad 7)
+  miso_pin: GPIO19  # GIO2 (BM5602 Pad 6)
+
+halo2:
+  id: screenbar
+  cs_pin: GPIO5     # CSN  (BM5602 Pad 4)
+  # Adresse der eigenen Lampe (Registerreihenfolge), mit kuzmin-no find_halo2_address.py ermittelt
+  radio_address: [0xB1, 0xF6, 0xA8, 0xAB]
+  radio_channel: 5
+  self_test: ${self_test}
+  light:
+    id: screenbar_light
+    # Leerer Name: Die Licht-Entity heißt in HA wie das Gerät („ScreenBar“).
+    name: ""
+    icon: mdi:wall-sconce-flat
+  front_brightness:
+    id: front_brightness
+    name: "Helligkeit vorne"
+    initial_value: 78
+  back_brightness:
+    id: back_brightness
+    name: "Helligkeit hinten"
+    icon: mdi:wall-sconce-flat-outline
+    initial_value: 10
+  sections:
+    id: lamp_sections
+    name: "Beleuchtung"
+  ultrasonic:
+    id: ultrasonic_sensor
+    name: "Anwesenheitssensor"
+  auto_button:
+    name: "Auto-Helligkeit"
+  radio_status:
+    id: radio_status
+    name: "Funkstatus"
+  radio_address_sensor:
+    name: "Funkadresse"
+
+button:
+  - platform: template
+    name: "Zustand erneut senden"
+    entity_category: diagnostic
+    on_press:
+      - lambda: id(screenbar).resend();
+  - platform: restart
+    name: "Neustart"
+
+sensor:
+  - platform: wifi_signal
+    name: "WLAN-Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "Laufzeit"
