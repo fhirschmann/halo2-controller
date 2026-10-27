@@ -1,0 +1,73 @@
+#pragma once
+
+#include <algorithm>
+#include <array>
+#include <cstdint>
+
+namespace esphome::halo2 {
+
+enum class Section : uint8_t { FRONT, BACK };
+enum class LampSelection : uint8_t { FRONT_ONLY = 0, BACK_ONLY = 1, BOTH = 2 };
+enum class UltrasonicTimeout : uint8_t { MINUTES_3 = 0, MINUTES_5 = 1, MINUTES_10 = 2, MINUTES_15 = 3 };
+// Application commands using their wire values. Favorite commands are receive-only.
+enum Command : uint8_t {
+  POWER = 0x02,
+  SETTINGS = 0x03,
+  STATUS = 0x04,
+  ULTRASONIC_TIMEOUT = 0x05,
+  FAVORITE_RECALL = 0x07,
+  FAVORITE_SAVE = 0x08,
+};
+constexpr std::array<uint8_t, 4> ULTRASONIC_TIMEOUT_MINUTES{3, 5, 10, 15};
+constexpr uint8_t MIN_BRIGHTNESS_PERCENT = 1, MAX_BRIGHTNESS_PERCENT = 100;
+constexpr uint16_t MIN_TEMPERATURE_K = 2700, MAX_TEMPERATURE_K = 6500, TEMPERATURE_STEP_K = 25;
+constexpr uint16_t DEFAULT_TEMPERATURE_K = 3925;
+
+// Lamp settings contain no packet metadata or ESPHome state.
+struct LampState {
+  bool power{false};
+  LampSelection selection{LampSelection::BOTH};
+  uint8_t front_brightness{MIN_BRIGHTNESS_PERCENT}, back_brightness{MIN_BRIGHTNESS_PERCENT};
+  uint16_t color_temperature{DEFAULT_TEMPERATURE_K};
+  bool ultrasonic_enabled{false};
+  UltrasonicTimeout ultrasonic_timeout{UltrasonicTimeout::MINUTES_5};
+
+  bool operator==(const LampState &) const = default;
+
+  bool selected(Section section) const {
+    return selection == LampSelection::BOTH ||
+           selection == (section == Section::FRONT ? LampSelection::FRONT_ONLY : LampSelection::BACK_ONLY);
+  }
+  bool is_on(Section section) const { return power && selected(section); }
+  uint8_t brightness(Section section) const { return section == Section::FRONT ? front_brightness : back_brightness; }
+  uint8_t master_brightness() const {
+    return std::max(selected(Section::FRONT) ? front_brightness : uint8_t{0},
+                    selected(Section::BACK) ? back_brightness : uint8_t{0});
+  }
+
+  void set_master_brightness(uint8_t percent, const LampState &basis) {
+    // A zero master level means OFF; it must not erase the wake profile.
+    if (percent == 0) return;
+    percent = std::min(percent, MAX_BRIGHTNESS_PERCENT);
+    const uint16_t peak = std::max(basis.master_brightness(), MIN_BRIGHTNESS_PERCENT);
+    for (auto section : {Section::FRONT, Section::BACK}) {
+      if (selected(section))
+        set_brightness(section, std::max<uint16_t>(MIN_BRIGHTNESS_PERCENT,
+                          (uint16_t(basis.brightness(section)) * percent + peak / 2) / peak));
+    }
+  }
+
+  void set_selection(bool front, bool back) {
+    // There is no wire selection for neither section. Retain the last mode.
+    if (front || back)
+      selection = front && back ? LampSelection::BOTH : (back ? LampSelection::BACK_ONLY : LampSelection::FRONT_ONLY);
+  }
+  void set_brightness(Section section, uint8_t percent) {
+    // Zero is an OFF request; keep a useful brightness for the next ON.
+    if (percent != 0)
+      (section == Section::FRONT ? front_brightness : back_brightness) =
+          std::clamp(percent, MIN_BRIGHTNESS_PERCENT, MAX_BRIGHTNESS_PERCENT);
+  }
+};
+
+}  // namespace esphome::halo2
