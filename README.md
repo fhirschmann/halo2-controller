@@ -52,9 +52,12 @@ an der Unterkante.
   nicht jedes Board G23 herausführt; die SPI-Matrix des ESP32 legt das Signal bei 1 MHz ohne Nachteil um.
 - **GND-Falle:** Manche DevKit-Nachbauten bedrucken den Pin neben 5V mit „GND“. Beim Original-DevKitC liegt
   dort CMD, eine Leitung zum Flash, und auch auf Fabians Board war er nicht mit GND verbunden. Am 2026-10-27
-  hing das Minus eines USB-C-PD-Boards daran; der Rückstrom lief über die Schutzdiode der Flash-Leitung, und
+  hing das Minus eines USB-C-PD-Boards daran, das zudem auf 9 V eingestellt war; der Rückstrom lief über die Schutzdiode der Flash-Leitung, und
   das Board startet seitdem nicht mehr. Jeden GND-Pin vor dem Anlöten per Durchgangsprüfer gegen das Gehäuse
   der USB-Buchse prüfen.
+- **USB-C-PD-Board als zweite Stromquelle:** vorher auf 5 V stellen (laut Tabelle auf dem Board S1, S2 und S3
+  auf 0) und den Ausgang messen. Plus an VIN, Minus an das GND-Pad direkt darüber (DOIT: linke Reihe unten).
+  Immer nur eine Stromquelle einstecken.
 - Pad 8 hängt nur als Reserve für das TBCLK-Verfahren von NickCao dran (siehe unten).
 - Die Modulantenne gehört weg von Metall und weg von der ESP32-Antenne.
 
