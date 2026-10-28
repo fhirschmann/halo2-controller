@@ -4,6 +4,11 @@ Custom ESPHome firmware that controls a **BenQ ScreenBar Halo 2** over the air: 
 **BM5602-60-1** module (Holtek BC5602, the same 2.4 GHz chip as in the lamp and its remote). Home Assistant
 connects to the board through the native ESPHome API; no MQTT broker is needed.
 
+Builds on [NickCao/benq-screenbar-halo2-esphome](https://github.com/NickCao/benq-screenbar-halo2-esphome)
+(ESPHome component, protocol description) and
+[kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration](https://github.com/kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration)
+(BM5602 register sequence, address finder); details under [Origin and licence](#origin-and-licence).
+
 **Status 2026-10-28:** Runs on a DOIT ESP32 DevKit V1. The radio module answers (chip version `56 02 01`),
 the lamp reports its state every 5 s, and updates over WiFi (OTA) work. On 2026-10-27 the self-test applied
 24 of 24 settings on the author's lamp and confirmed each with a fresh status reply; 146 radio packets went
