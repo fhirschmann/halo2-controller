@@ -278,14 +278,24 @@ void Halo2::receive_packet_() {
   if (!received_state) return;
   const uint32_t now = millis();
   if (!received.is_reply()) {
+    // Only a POWER command (02) switches the lamp. A remote waking from sleep first sends 00 frames with power 0
+    // while the lamp stays on, and its other commands carry a power bit the lamp ignores.
+    if (received.command < Command::POWER) {
+      ESP_LOGV(TAG, "Remote wake-up frame not applied");
+      return;
+    }
     // The remote polls the lamp with command 04, carrying the state the remote believes in. Right after a change
     // that is still the old one, so such a query only counts outside the settle window and when it differs.
     if (received.command == Command::STATUS && (settling_(now) || received.state == lamp_state_)) {
       ESP_LOGV(TAG, "Remote status query not applied");
       return;
     }
-    apply_received_(received);
-    settle_(now);
+    auto update = received;
+    if (received.command != Command::POWER && received.command != Command::STATUS)
+      update.state.power = lamp_state_.power;
+    const bool changed = update.state != lamp_state_;
+    apply_received_(update);
+    if (changed) settle_(now);
     return;
   }
   const auto reply =

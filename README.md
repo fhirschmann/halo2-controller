@@ -156,6 +156,11 @@ and measurements during development.
   (it still answered "on" 1.2 s after an off). Status replies within 3 s of a command or an overheard
   remote frame are therefore ignored; otherwise the light entity would briefly flip back and automations
   that follow it would toggle twice.
+- **What the remote sends.** Only a POWER command (`02`) switches the lamp. Woken from sleep, the remote
+  first sends frames with command `00` and power 0 while the lamp stays on (the first press only wakes the
+  remote). After any press it polls the lamp about once a second with `04`, carrying the state it believes
+  in, which is stale for the first one or two seconds. The firmware therefore takes on/off only from `02`
+  frames, and from `04` frames only outside the settle window.
 - **Switching on** sends `03` (settings) and then `02` (power); `03` alone does not switch the lamp on.
 - **Chip version:** command `0x9F` returns `56 02 01`; the log shows it at boot. `00 00 00` means the
   module does not answer (check wiring and 3.3 V).
