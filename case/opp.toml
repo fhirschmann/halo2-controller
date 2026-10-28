@@ -1,0 +1,85 @@
+# opp project file (openscad-print-project, reference/project-file.md): the static settings of this project;
+# print_project.py holds checks(ctx). Package defaults (H2S printer, folders) are left out.
+
+[project]
+status = "active"   # active | finished (opp finished: printed and in use, opp upgrade leaves it on its version)
+source = "halo2_case.scad"
+allowed_overlaps = [["screws", "box"], ["kit_screws", "box"], ["pd_screws", "lid"], ["usb_plug", "usbc_plug"]]   # screws cut their thread into the inserts and the PETG pilots; only one cable is plugged in at a time
+filaments = [
+    { material = "PETG", profile = "Generic PETG @BBL H2S", colour = "#1A1A1A" },
+    { material = "PETG", profile = "Generic PETG @BBL H2S", inlay = "qr", colour = "#9EA2A5" },
+]
+project_3mf = "stl/halo2_case.3mf"
+analyze = ["islands", "inlays", "thickness", "fins"]
+limitations = [
+    "DOIT DevKit, BM5602 and PD board are simplified envelopes; outlines from flatbed scans, the stack height (12 mm) measured on the first board, other heights estimated",
+    "Wires are not modelled; the free height under the PCB (under_h) has to hold the wire loops",
+    "The PD board holes (two in the middle of the far end) come from the scan; the two M2 screws locate the board",
+    "Both receptacles reach into their cut-outs: DevKit and lid go in behind their place and slide forward (checked as two-step paths)",
+    "No physical fit, strength or thermal validation",
+]
+
+# Intended analysis findings, explained in the README
+[analyze_accepted]
+thickness = { box = 1 }   # the 1.0 mm front wall: both receptacles end close to its outer face so the plugs seat fully
+
+# Print parts: name = [quantity in the full build, material, body count]
+[parts]
+box = [1, "PETG", 1]
+lid = [1, "PETG", 1]
+
+# Two colours with the AMS: the grey QR modules (inverted code) in the first three layers of the black bottom
+[color_parts]
+box = ["qr"]
+
+# Assembly bodies in installed position: name = OpenSCAD call. Every pair is checked for overlap.
+[assembly]
+box = "box();"
+lid = "translate([0, 0, box_h]) lid();"
+devkit = "devkit();"
+bm5602 = "bm5602();"
+screws = "screws();"
+kit_screws = "kit_screws();"
+pd_screws = "pd_screws();"
+usb_plug = "usb_plug();"
+pdboard = "pdboard();"
+usbc_plug = "usbc_plug();"
+
+# World -> print rotation; the lid lies top face down
+[print_poses]
+box = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+lid = [[[1, 0, 0], [0, -1, 0], [0, 0, -1]], "lid"]
+
+[plates]
+Gehaeuse = ["box", "lid"]
+
+[viewer]
+title = "halo2-controller case"
+page_title = "halo2-controller case"
+eyebrow = "Assembly · installed position"
+groups = [["petg", "Printed · PETG"], ["bought", "Bought parts"]]
+outer = ["box", "lid"]
+cut = ["box"]
+parts = [
+    ["box", "Box", "petg", "#3b3f45", "1x", [0, 0, 0]],
+    ["lid", "Lid", "petg", "#6b7078", "1x", [0, 0, 1]],
+    ["devkit", "DOIT ESP32 DevKit V1", "bought", "#1f5fbf", "1x", [0, 0, 0.5]],
+    ["bm5602", "BM5602-60-1", "bought", "#2a7de1", "1x", [0, 0, 0.7]],
+    ["screws", "ISO 7380 M3 x 8", "bought", "#9aa3ab", "4x", [0, 0, 1.5]],
+    ["kit_screws", "Self-tapping screw M2 x 6", "bought", "#c8ccd0", "4x", [0, 0, 1.2]],
+    ["pd_screws", "Self-tapping screw M2 x 6", "bought", "#c8ccd0", "2x", [0, 0, 1.2]],
+    ["pdboard", "USB-C PD board (5 V)", "bought", "#7a3fbf", "1x", [0, 0, 0.8]],
+    ["usb_plug", "Micro-USB plug", "bought", "#2b2b2b", "1x", [-1, 0, 0]],
+    ["usbc_plug", "USB-C plug", "bought", "#4a4a4a", "1x", [-1, 0, 0]],
+]
+
+[viewer.colour]
+box = [["qr", "Box · QR code", "#9ea2a5"]]
+
+[viewer.bodies]
+box_base = "box_base();"
+box_qr = "box_qr();"
+
+[views]
+01_assembly = ["assembly();", "120,-160,120,0,0,15"]
+02_exploded = ["assembly(25);", "120,-160,150,0,0,30"]

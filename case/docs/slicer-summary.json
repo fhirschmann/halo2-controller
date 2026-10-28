@@ -1,0 +1,227 @@
+{
+  "profile": "Bambu Lab H2S 0.4 nozzle / 0.20mm Standard @BBL H2S, 4 walls, 5/5 top/bottom, no supports; 25 % gyroid, 100 % zig-zag: none",
+  "process_overrides": {
+    "only_one_wall_first_layer": "1",
+    "enable_support": "0"
+  },
+  "part_infill": {},
+  "part_settings": {},
+  "supported_parts": [],
+  "parts": [
+    {
+      "part": "box",
+      "quantity": 1,
+      "material": "PETG",
+      "filament_slot": 1,
+      "passed": true,
+      "positioning": {
+        "mode": "automatic"
+      },
+      "source_sha256": "852dcbc07eaa5fe654b119876de3f74b898070dfaa613e941b6ed97587c41ec9",
+      "exit_code": 0,
+      "result_code": 0,
+      "warnings": "",
+      "hours": 0.753,
+      "grams": 16.512,
+      "wall_loops": 4,
+      "infill_percent": 25.0,
+      "layer_height": 0.20000000298023224,
+      "effective_settings": {
+        "sparse_infill_pattern": "gyroid",
+        "enable_support": "0",
+        "support_type": "tree(auto)",
+        "support_on_build_plate_only": "0",
+        "curr_bed_type": "Engineering Plate",
+        "top_shell_layers": "5",
+        "bottom_shell_layers": "5",
+        "only_one_wall_first_layer": "1"
+      },
+      "support_toolpaths": false,
+      "start_gcode_diagnostic": true
+    },
+    {
+      "part": "lid",
+      "quantity": 1,
+      "material": "PETG",
+      "filament_slot": 1,
+      "passed": true,
+      "positioning": {
+        "mode": "automatic"
+      },
+      "source_sha256": "47b37c20462b65f8c312c1df58ea97c8068291060d9fb8abb6c02a79b9a60b8e",
+      "exit_code": 0,
+      "result_code": 0,
+      "warnings": "",
+      "hours": 0.386,
+      "grams": 8.03,
+      "wall_loops": 4,
+      "infill_percent": 25.0,
+      "layer_height": 0.20000000298023224,
+      "effective_settings": {
+        "sparse_infill_pattern": "gyroid",
+        "enable_support": "0",
+        "support_type": "tree(auto)",
+        "support_on_build_plate_only": "0",
+        "curr_bed_type": "Engineering Plate",
+        "top_shell_layers": "5",
+        "bottom_shell_layers": "5",
+        "only_one_wall_first_layer": "1"
+      },
+      "support_toolpaths": false,
+      "start_gcode_diagnostic": true
+    }
+  ],
+  "total_parts": 2,
+  "total_grams_individual_plates": 24.5,
+  "total_hours_individual_plates": 1.1,
+  "production_gcode": false,
+  "project_3mf": {
+    "file": "stl/halo2_case.3mf",
+    "parts": 2,
+    "plates": 1,
+    "layout": [
+      {
+        "plate": 1,
+        "name": "Gehaeuse",
+        "parts": [
+          "box",
+          "lid"
+        ],
+        "size_mm": [
+          55.4,
+          93.4
+        ],
+        "prime_tower_xy": [
+          83.4,
+          130.0
+        ],
+        "object_bounds_mm": [
+          [
+            10.0,
+            113.3
+          ],
+          [
+            65.45,
+            206.7
+          ]
+        ]
+      }
+    ],
+    "bed_type": "Engineering Plate",
+    "bed_reuse": null,
+    "total_hours_plates": 1.2,
+    "total_grams_plates": 26.0,
+    "multicolour_parts": {
+      "box": [
+        "qr"
+      ]
+    },
+    "multicolour_slices": {
+      "Gehaeuse": {
+        "plate": 1,
+        "hours": 1.22,
+        "grams_by_filament": {
+          "1": 24.66,
+          "2": 1.34
+        },
+        "warnings": ""
+      }
+    },
+    "pause_slices": {},
+    "plate_slices": {
+      "Gehaeuse": {
+        "plate": 1,
+        "hours": 1.22,
+        "grams_by_filament": {
+          "1": 24.66,
+          "2": 1.34
+        },
+        "warnings": "",
+        "process_overrides": {
+          "enable_support": "0",
+          "only_one_wall_first_layer": "1",
+          "wall_loops": "4"
+        },
+        "object_infill": {
+          "lid": {
+            "instances": 1,
+            "sparse_infill_density": "25%",
+            "sparse_infill_pattern": "gyroid"
+          },
+          "box": {
+            "instances": 1,
+            "sparse_infill_density": "25%",
+            "sparse_infill_pattern": "gyroid"
+          }
+        },
+        "object_support": {
+          "box": {
+            "instances": 1,
+            "enable_support": "0",
+            "support_type": "tree(auto)",
+            "support_on_build_plate_only": "0"
+          },
+          "lid": {
+            "instances": 1,
+            "enable_support": "0",
+            "support_type": "tree(auto)",
+            "support_on_build_plate_only": "0"
+          }
+        },
+        "support_toolpaths": false,
+        "object_settings": {},
+        "expected_filament_slots": [
+          1,
+          2
+        ],
+        "object_filaments": {
+          "lid": {
+            "lid": 1
+          },
+          "box": {
+            "box_base": 1,
+            "box_qr": 2
+          }
+        }
+      }
+    },
+    "object_filaments": {
+      "box": {
+        "box_base": 1,
+        "box_qr": 2
+      },
+      "lid": {
+        "lid": 1
+      }
+    },
+    "object_infill": {
+      "box": {
+        "instances": 1,
+        "sparse_infill_density": "25%",
+        "sparse_infill_pattern": "gyroid"
+      },
+      "lid": {
+        "instances": 1,
+        "sparse_infill_density": "25%",
+        "sparse_infill_pattern": "gyroid"
+      }
+    },
+    "object_support": {
+      "box": {
+        "instances": 1,
+        "enable_support": "0",
+        "support_type": "tree(auto)",
+        "support_on_build_plate_only": "0"
+      },
+      "lid": {
+        "instances": 1,
+        "enable_support": "0",
+        "support_type": "tree(auto)",
+        "support_on_build_plate_only": "0"
+      }
+    },
+    "object_settings": {},
+    "own_infill_parts": 0,
+    "sha256": "e8f0deda0dd1701466f5e0504b6a26ebe2065d26fcfd5c92e3ab8e17ff9132bb"
+  }
+}

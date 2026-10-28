@@ -1,0 +1,416 @@
+{
+  "source_sha256": "cda01a69ee8f91a1670484b44549ec1cc75d7e46403bf5b3f55d63d8c70fb2d9",
+  "software": {
+    "numpy": "2.5.3",
+    "trimesh": "5.1.0",
+    "manifold3d": "3.5.3",
+    "scipy": "1.18.1",
+    "rtree": "1.4.1",
+    "networkx": "3.6.1"
+  },
+  "print_parts": 2,
+  "print_quantity": 2,
+  "print_meshes": {
+    "box": {
+      "size_mm": [
+        55.45,
+        45.7,
+        22.9
+      ],
+      "bounds_mm": [
+        [
+          -26.925,
+          -22.85,
+          0.0
+        ],
+        [
+          28.525,
+          22.85,
+          22.9
+        ]
+      ],
+      "volume_mm3": 14189.7263,
+      "triangles": 2708,
+      "watertight": true,
+      "consistent_winding": true,
+      "degenerate_faces": 0,
+      "components": 1,
+      "boundary_shells": 1,
+      "cavity_shells": 0,
+      "shell_nesting_valid": true,
+      "shell_errors": [],
+      "backend": "Manifold",
+      "membranes": [],
+      "sha256": "852dcbc07eaa5fe654b119876de3f74b898070dfaa613e941b6ed97587c41ec9",
+      "quantity": 1,
+      "material": "PETG",
+      "committed_sha256": "852dcbc07eaa5fe654b119876de3f74b898070dfaa613e941b6ed97587c41ec9"
+    },
+    "lid": {
+      "size_mm": [
+        55.45,
+        45.7,
+        6.2
+      ],
+      "bounds_mm": [
+        [
+          -26.925,
+          -22.85,
+          0.0
+        ],
+        [
+          28.525,
+          22.85,
+          6.2
+        ]
+      ],
+      "volume_mm3": 8214.5278,
+      "triangles": 2996,
+      "watertight": true,
+      "consistent_winding": true,
+      "degenerate_faces": 0,
+      "components": 1,
+      "boundary_shells": 1,
+      "cavity_shells": 0,
+      "shell_nesting_valid": true,
+      "shell_errors": [],
+      "backend": "Manifold",
+      "membranes": [],
+      "sha256": "47b37c20462b65f8c312c1df58ea97c8068291060d9fb8abb6c02a79b9a60b8e",
+      "quantity": 1,
+      "material": "PETG",
+      "committed_sha256": "47b37c20462b65f8c312c1df58ea97c8068291060d9fb8abb6c02a79b9a60b8e"
+    }
+  },
+  "color_meshes": {
+    "box_base": {
+      "size_mm": [
+        55.45,
+        45.7,
+        22.9
+      ],
+      "bounds_mm": [
+        [
+          -26.925,
+          -22.85,
+          0.0
+        ],
+        [
+          28.525,
+          22.85,
+          22.9
+        ]
+      ],
+      "volume_mm3": 13844.1444,
+      "triangles": 5812,
+      "watertight": true,
+      "consistent_winding": true,
+      "degenerate_faces": 0,
+      "components": 1,
+      "boundary_shells": 1,
+      "cavity_shells": 0,
+      "shell_nesting_valid": true,
+      "shell_errors": [],
+      "backend": "Manifold",
+      "membranes": [],
+      "sha256": "cc17acc4d901782b3d397d9d7778f3781e0a5166775784502743903a03dadeba"
+    },
+    "box_qr": {
+      "size_mm": [
+        33.04,
+        33.04,
+        0.6
+      ],
+      "bounds_mm": [
+        [
+          -15.72,
+          -16.52,
+          0.0
+        ],
+        [
+          17.32,
+          16.52,
+          0.6
+        ]
+      ],
+      "volume_mm3": 345.5818,
+      "triangles": 3282,
+      "watertight": true,
+      "consistent_winding": true,
+      "degenerate_faces": 0,
+      "components": 14,
+      "boundary_shells": 14,
+      "cavity_shells": 0,
+      "shell_nesting_valid": true,
+      "shell_errors": [],
+      "backend": "Manifold",
+      "membranes": [],
+      "sha256": "b1fc75f3070cd3f3e7f0a7ce1f77645f28b143b5190965c42a3926efdb6fb494"
+    }
+  },
+  "color_parts": {
+    "box": {
+      "overlap_mm3": -0.0,
+      "union_delta_mm3": 0.0,
+      "qr": {
+        "mm3": 345.58,
+        "depth_mm": 0.6,
+        "z_mm": [
+          0.0,
+          0.6
+        ],
+        "bodies": 14
+      }
+    }
+  },
+  "print_poses": {
+    "box": 0.0,
+    "lid": 0.0
+  },
+  "assembly_bodies": 10,
+  "assembly_pairs": 45,
+  "metrics": {
+    "wall": 2,
+    "wall_front": 1,
+    "lid_clearance": 0.2,
+    "kit_holes": [
+      [
+        -23.365,
+        -11.75
+      ],
+      [
+        -23.365,
+        11.75
+      ],
+      [
+        23.365,
+        -11.75
+      ],
+      [
+        23.365,
+        11.75
+      ]
+    ],
+    "kit_hole_cl": 0.5,
+    "bm_end": 5.26,
+    "pd_holes": [
+      [
+        2.525,
+        -2.5
+      ],
+      [
+        2.525,
+        2.5
+      ]
+    ],
+    "pd_hole_cl": 0.05,
+    "pd_standoff": 3,
+    "pd_pilot_depth": 4.7,
+    "pd_skin": 1.5,
+    "kit_front": 0.1,
+    "pd_front": 0.05,
+    "kit_slide": 0.5,
+    "lid_slide": 1.1,
+    "outer_mm": [
+      55.45,
+      45.7,
+      26.1
+    ],
+    "inner_mm": [
+      52.45,
+      41.7,
+      21.3
+    ],
+    "under_h": 7.4,
+    "z_pcb": 9,
+    "z_usb": 12,
+    "z_usbc": 16.7,
+    "box_h": 22.9,
+    "boss_xy": [
+      [
+        -22.525,
+        -18.45
+      ],
+      [
+        -22.525,
+        18.45
+      ],
+      [
+        24.125,
+        -18.45
+      ],
+      [
+        24.125,
+        18.45
+      ]
+    ],
+    "pocket_depth": 7.2,
+    "screw_engage": 6.6,
+    "cb_d": 1.8,
+    "lid_t": 3.2,
+    "usb_recess": 0.7,
+    "usbc_recess": 0.15,
+    "port_bar": 1.2
+  },
+  "intersections": [],
+  "alignment": {
+    "features": 60,
+    "coaxial_pairs": {
+      "box|devkit": 12,
+      "box|kit_screws": 16,
+      "box|lid": 16,
+      "box|screws": 8,
+      "devkit|kit_screws": 8,
+      "lid|pd_screws": 8,
+      "lid|pdboard": 8,
+      "lid|screws": 16,
+      "pd_screws|pdboard": 8
+    },
+    "misaligned": [],
+    "allowed_misaligned": 0
+  },
+  "contact_volumes_mm3": {
+    "lid@box": 21.3511,
+    "devkit@box": 1.6271,
+    "bm5602@devkit": 17.2575,
+    "screws@lid": 0.6367,
+    "kit_screws@devkit": 1.0995,
+    "pdboard@lid": 2.495,
+    "pd_screws@pdboard": 0.9062
+  },
+  "stops": [
+    {
+      "name": "devkit_up",
+      "first_contact_mm": 0.25,
+      "limit_mm": 0.3
+    },
+    {
+      "name": "devkit_pull",
+      "first_contact_mm": 0.25,
+      "limit_mm": 0.4
+    },
+    {
+      "name": "devkit_push",
+      "first_contact_mm": 0.75,
+      "limit_mm": 0.8
+    },
+    {
+      "name": "pd_pull",
+      "first_contact_mm": 0.25,
+      "limit_mm": 0.35
+    },
+    {
+      "name": "pd_push",
+      "first_contact_mm": 0.25,
+      "limit_mm": 0.35
+    },
+    {
+      "name": "pd_drop",
+      "first_contact_mm": 0.25,
+      "limit_mm": 0.3
+    }
+  ],
+  "sampled_paths": [
+    {
+      "name": "lid_off",
+      "length_mm": 26.2,
+      "collisions": 0,
+      "first_mm": null,
+      "max_volume_mm3": 0.0
+    },
+    {
+      "name": "devkit_out",
+      "length_mm": 25.6,
+      "collisions": 0,
+      "first_mm": null,
+      "max_volume_mm3": 0.0
+    },
+    {
+      "name": "pd_out",
+      "length_mm": 10.0,
+      "collisions": 0,
+      "first_mm": null,
+      "max_volume_mm3": 0.0
+    },
+    {
+      "name": "plug_out",
+      "length_mm": 15.0,
+      "collisions": 0,
+      "first_mm": null,
+      "max_volume_mm3": 0.0
+    },
+    {
+      "name": "usbc_out",
+      "length_mm": 15.0,
+      "collisions": 0,
+      "first_mm": null,
+      "max_volume_mm3": 0.0
+    }
+  ],
+  "inserts": [
+    {
+      "body": "box",
+      "at": [
+        -22.52,
+        -18.45,
+        22.9
+      ],
+      "empty_mm3": 0.0,
+      "ring_fill": 1.0,
+      "floor_fill": 1.0
+    },
+    {
+      "body": "box",
+      "at": [
+        -22.52,
+        18.45,
+        22.9
+      ],
+      "empty_mm3": 0.0,
+      "ring_fill": 1.0,
+      "floor_fill": 1.0
+    },
+    {
+      "body": "box",
+      "at": [
+        24.12,
+        -18.45,
+        22.9
+      ],
+      "empty_mm3": 0.0,
+      "ring_fill": 1.0,
+      "floor_fill": 1.0
+    },
+    {
+      "body": "box",
+      "at": [
+        24.12,
+        18.45,
+        22.9
+      ],
+      "empty_mm3": 0.0,
+      "ring_fill": 1.0,
+      "floor_fill": 1.0
+    }
+  ],
+  "stl_difference_mm3": {
+    "box": 0.0,
+    "lid": 0.0,
+    "multicolour/box_base": 0.0,
+    "multicolour/box_qr": 0.0
+  },
+  "open_measurements": [
+    "PD board holes from the scan (+-2.5 mm, 2.2 mm from the far end): the screws locate the board, measure the hole centres to the USB-C front with calipers",
+    "M2 x 6 assumed from the VooGenzek set; pilot 1.6 mm untested in PETG",
+    "PD board heights estimated (PCB 1.6, receptacle 3.2, parts 1.5): measure before printing",
+    "Stack 12 mm measured on the first board, split estimated: measure the DOIT stack with the module glued",
+    "DOIT board from the scan: holes 46.73 x 23.5 apart, width 28.1 an upper bound: check with calipers"
+  ],
+  "limitations": [
+    "DOIT DevKit, BM5602 and PD board are simplified envelopes; outlines from flatbed scans, the stack height (12 mm) measured on the first board, other heights estimated",
+    "Wires are not modelled; the free height under the PCB (under_h) has to hold the wire loops",
+    "The PD board holes (two in the middle of the far end) come from the scan; the two M2 screws locate the board",
+    "Both receptacles reach into their cut-outs: DevKit and lid go in behind their place and slide forward (checked as two-step paths)",
+    "No physical fit, strength or thermal validation"
+  ]
+}
