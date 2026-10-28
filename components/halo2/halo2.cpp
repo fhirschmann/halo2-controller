@@ -100,7 +100,7 @@ void Halo2::loop() {
   if (radio_.take_tx_done()) {
     const uint32_t now = millis();
     if (commands_.on_tx_done(now)) {
-      status_poll_.schedule(now, StatusPoll::SETTLE_MS);
+      settle_(now);
     } else {
       status_poll_.on_tx_done(now);
     }
@@ -214,7 +214,15 @@ void Halo2::apply_received_(const protocol::ReceivedPacket &received) {
 }
 
 void Halo2::update() {
-  if (lifecycle_.linked() && commands_.idle() && status_poll_.idle()) status_poll_.schedule(millis(), 0);
+  const uint32_t now = millis();
+  if (lifecycle_.linked() && commands_.idle() && status_poll_.idle())
+    status_poll_.schedule(now, settling_(now) ? settle_until_ - now : 0);
+}
+
+// The next status poll waits until the lamp reports the new state.
+void Halo2::settle_(uint32_t now) {
+  settle_until_ = now + STATE_SETTLE_MS;
+  status_poll_.schedule(now, STATE_SETTLE_MS);
 }
 
 void Halo2::process_radio_() {
@@ -270,12 +278,18 @@ void Halo2::receive_packet_() {
   if (!received_state) return;
   if (!received.is_reply()) {
     apply_received_(received);
-    status_poll_.schedule(millis(), StatusPoll::SETTLE_MS);
+    settle_(millis());
     return;
   }
+  const uint32_t now = millis();
   const auto reply =
-      status_poll_.on_reply(received.pcf & protocol::PCF_PID_MASK, received.command == Command::STATUS, millis());
+      status_poll_.on_reply(received.pcf & protocol::PCF_PID_MASK, received.command == Command::STATUS, now);
   if (reply != StatusPoll::Reply::STATE || light_->transitioning()) return;
+  if (settling_(now)) {
+    ESP_LOGD(TAG, "Lamp status ignored, the lamp is still settling (%" PRIu32 " ms left)", settle_until_ - now);
+    status_poll_.schedule(now, settle_until_ - now);
+    return;
+  }
   apply_received_(received);
   const auto &state = received.state;
   last_status_ = state;

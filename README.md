@@ -152,6 +152,10 @@ and measurements during development.
   command often still shows the old state. Hence NickCao's sequence: one query to refresh, another 500 ms
   later to read, and only a reply to command `04` is accepted. Consecutive status queries also differ in
   the back colour temperature field, which `04` does not apply, so the lamp does not drop them as repeats.
+- **The lamp settles slowly.** After a power change it keeps reporting the old state for more than a second
+  (it still answered "on" 1.2 s after an off). Status replies within 3 s of a command or an overheard
+  remote frame are therefore ignored; otherwise the light entity would briefly flip back and automations
+  that follow it would toggle twice.
 - **Switching on** sends `03` (settings) and then `02` (power); `03` alone does not switch the lamp on.
 - **Chip version:** command `0x9F` returns `56 02 01`; the log shows it at boot. `00 00 00` means the
   module does not answer (check wiring and 3.3 V).

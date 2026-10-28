@@ -57,6 +57,10 @@ class Halo2 : public PollingComponent {
   // Persisted selection is a bitmask, distinct from LampSelection's wire values.
   enum SavedMode : uint8_t { NONE = 0, FRONT = 1, BACK = 2, BOTH = FRONT | BACK };
   static constexpr uint32_t RECOVERY_INITIAL_DELAY_MS = 1000;
+  // After a command or an overheard remote frame the lamp keeps reporting its old
+  // power state for more than a second (it still answered "on" 1.2 s after an off).
+  // Status replies inside this window are stale and are not applied.
+  static constexpr uint32_t STATE_SETTLE_MS = 3000;
 
   void request_state_(const LampState &requested);
   void publish_light_();
@@ -70,6 +74,8 @@ class Halo2 : public PollingComponent {
   void send_commands_();
   void receive_packet_();
   void poll_status_();
+  void settle_(uint32_t now);
+  bool settling_(uint32_t now) const { return static_cast<int32_t>(settle_until_ - now) > 0; }
   void start_radio_();
   void radio_ready_();
   void recover_radio_();
@@ -98,6 +104,7 @@ class Halo2 : public PollingComponent {
   CommandQueue commands_;
   uint32_t processing_interval_{50};
   uint32_t last_process_at_{0};
+  uint32_t settle_until_{0};
   StatusPoll status_poll_;
   uint8_t saved_mode_{SavedMode::BOTH};
   uint8_t command_retries_{0};
