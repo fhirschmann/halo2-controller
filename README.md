@@ -13,8 +13,8 @@ Builds on [NickCao/benq-screenbar-halo2-esphome](https://github.com/NickCao/benq
 the lamp reports its state every 5 s, and updates over WiFi (OTA) work. On 2026-10-27 the self-test applied
 24 of 24 settings on the author's lamp and confirmed each with a fresh status reply; 146 radio packets went
 out and none stayed unacknowledged. The remote is overheard. Since 2026-10-28 the board is **in Home
-Assistant**; a command from HA arrives acknowledged after about one second. The first board, a 38-pin
-DevKit, was damaged on 2026-10-27 (see the GND trap below). A printable case is in [`case/`](case/).
+Assistant**; a command from HA arrives acknowledged after about one second. A printable case is in
+[`case/`](case/).
 
 ## What it does
 
@@ -56,10 +56,9 @@ leftmost of the nine pads along the bottom edge.
 - G18 and G19 are VSPI pins, CS is on G5 (a strapping pin, harmless as CS). SDIO is on G22 because not every
   board breaks out G23; the ESP32's SPI matrix routes the signal there with no drawback at 1 MHz.
 - **GND trap:** Some DevKit clones label the pin next to 5V "GND". On the original DevKitC that pin is CMD, a
-  flash line, and on the author's board it was not connected to GND either. On 2026-10-27 the negative
-  output of a USB-C PD trigger board was soldered to it, and the trigger board was set to 9 V; the return
-  current flowed through the protection diode of the flash line, and the board has not booted since. Check
-  every GND pin for continuity against the USB receptacle shell before soldering.
+  flash line. A supply's negative wired there sends the return current through the flash line's protection
+  diode, which can destroy the board. Check every GND pin for continuity against the USB receptacle shell
+  before soldering.
 - **USB-C PD trigger board as a second power input:** set it to 5 V first (per the table printed on the
   board, S1, S2 and S3 at 0) and measure its output. Positive to VIN, negative to the GND pad right next to
   it (DOIT: bottom of the left-hand row). Only ever plug in one power source.
