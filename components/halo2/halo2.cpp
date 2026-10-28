@@ -276,12 +276,18 @@ void Halo2::receive_packet_() {
              YESNO(received_state));
   }
   if (!received_state) return;
+  const uint32_t now = millis();
   if (!received.is_reply()) {
+    // The remote polls the lamp with command 04, carrying the state the remote believes in. Right after a change
+    // that is still the old one, so such a query only counts outside the settle window and when it differs.
+    if (received.command == Command::STATUS && (settling_(now) || received.state == lamp_state_)) {
+      ESP_LOGV(TAG, "Remote status query not applied");
+      return;
+    }
     apply_received_(received);
-    settle_(millis());
+    settle_(now);
     return;
   }
-  const uint32_t now = millis();
   const auto reply =
       status_poll_.on_reply(received.pcf & protocol::PCF_PID_MASK, received.command == Command::STATUS, now);
   if (reply != StatusPoll::Reply::STATE || light_->transitioning()) return;
