@@ -1,41 +1,70 @@
 # halo2-controller case
 
-Case for the **DOIT ESP32 DevKit V1** (30 pads, no pin headers, wires soldered directly) with the
-BM5602-60-1 glued flat underneath it, and a **USB-C PD trigger board** (5 V) as a second power input.
-Box with a screwed-on lid, PETG, two parts, outside **55.5 × 45.7 × 26.1 mm**, **26 g, 1.2 h** on one
-plate (Bambu H2S, project 3MF `stl/halo2_case.3mf`).
+A two-part case for the controller: a **DOIT ESP32 DevKit V1** (30 pads, no pin headers, wires soldered
+directly) with the **BM5602-60-1** glued underneath it, and an optional **USB-C PD trigger board** (5 V) as a
+second power input. Micro-USB and USB-C sit one above the other in the front wall. Outside
+**55.5 × 45.7 × 26.1 mm**, PETG, about **26 g and 1.2 h** of printing. The bottom carries a QR code that
+links to this repository.
 
-3D view: https://claude.ai/artifact/A8DRHze3AYc7ki95YDJwqp
+## Parts
 
-- **DevKit:** sits on four bosses, held by four **M2 × 6** self-tapping pan head screws through its corner
-  holes straight into the plastic (pilot Ø 1.6). The Ø 3.0 holes leave 0.5 mm of play; the 4 mm head
-  clears the EN and BOOT buttons. Below it there are 7.4 mm for the module and the wires.
-- **Radio module:** glue it under the DevKit a little over 5 mm from the USB end, behind the two front
-  bosses (`bm_end`), antenna away from the WROOM.
-- **PD trigger board:** hangs upside down under the lid, held by two **M2 × 6** through its two middle holes
-  into a boss; at the receptacle end it rests on two ledges. Set it to 5 V and measure first; positive to
-  VIN, negative to the GND pad next to it (see the main README). Only ever plug in one power source.
-- **Receptacles:** micro-USB and USB-C sit one above the other in two separate cut-outs of the front wall.
-  That wall is only **1.0 mm** thick (an accepted analysis finding): the receptacles end just inside its
-  outer face, otherwise the plugs would not seat fully. The DevKit and the lid therefore go in slightly
-  behind their place and slide forward.
-- **Lid:** four **ISO 7380 M3 × 8** with sunk heads (bridged counterbores, prints upside down without
-  supports) into **Ruthex RX-M3x5.7** inserts in the corner bosses of the box.
-- **Bottom:** inverted **QR code** to https://github.com/fhirschmann/halo2-controller, grey modules in the
-  first three layers of the black floor (AMS, two colours). An iPhone camera reads it. For another URL, edit
-  `make_qr.py` and run `uv run --no-project --with qrcode python make_qr.py`.
+| Qty | Part | Used for |
+|---|---|---|
+| 1 | `stl/box.stl` (or the two-colour pair in `stl/multicolour/`) | Box |
+| 1 | `stl/lid.stl` | Lid, already turned top face down for printing |
+| 6 | Self-tapping pan head screw M2 × 6 (for plastic) | 4 × DevKit, 2 × PD trigger board |
+| 4 | ISO 7380 button head screw M3 × 8 | Lid |
+| 4 | Heat-set insert M3, Ø 4.0 hole, 5.7 mm long (e.g. Ruthex RX-M3x5.7) | Corner bosses of the box |
+| – | A dab of silicone adhesive | Radio module under the DevKit |
 
-**Status 2026-10-28:** released for printing. Dimensions from flatbed scans (`scan/`, 200 dpi): DOIT board
-51.65 × 28.1 mm (the width is an upper bound, the scan shadow blurs the long edges), holes 46.73 × 23.5 mm
-apart; PD board holes ±2.5 mm, 2.2 mm from its short edge. The stack height (12 mm) was measured on the
-first board. Not measured yet, so check on the first print: position of the PD board holes relative to its
-USB-C receptacle, M2 pilot holes in PETG.
+`stl/halo2_case.3mf` is a ready Bambu Studio project (Bambu Lab H2S, 0.4 mm nozzle, PETG, engineering plate)
+with both parts on one plate and the QR code assigned to a second filament.
 
-The model is built with the author's openscad-print-project tools (`opp`, pinned in `requirements.txt`);
-`halo2_case.scad` and the STLs in `stl/` stand on their own.
+## Printing
+
+- Both parts print without supports: the box stands on its floor, the lid lies top face down. The four
+  counterbores in the lid have sacrificial bridge layers, so they print upside down cleanly.
+- **QR code:** the grey modules sit in the first three layers (0.6 mm) of the black floor, an inverted code
+  (light on dark). Phone cameras that try both polarities read it; an iPhone does. For a single-colour
+  print use `stl/box.stl`; the code is then just not visible.
+- The front wall is only 1.0 mm thick on purpose: both receptacles end just inside its outer face,
+  otherwise the plugs would not seat fully.
+
+## Assembly
+
+1. Press the four heat-set inserts into the corner bosses of the box.
+2. Solder the radio module (see the wiring in the [main README](../README.md)) and glue it flat under the
+   DevKit, a little over 5 mm behind the USB end, so it sits between the four DevKit bosses.
+3. Put the DevKit in slightly behind its place, lower it onto the four bosses and slide it forward until the
+   micro-USB receptacle sits in the lower cut-out. Fasten it with four M2 × 6 through its corner holes. The
+   pilots are Ø 1.6; turn the first screw in gently.
+4. Optional PD trigger board: set it to 5 V and measure. Screw it to the boss under the lid with two M2 × 6
+   through its two middle holes, components facing down, USB-C towards the front. Wire positive to VIN and
+   negative to GND on the DevKit.
+5. Lower the lid slightly behind its place, slide it forward until the USB-C receptacle sits in the upper
+   cut-out, and fasten it with the four M3 × 8.
+
+## Fit and adapting
+
+The dimensions come from flatbed scans (`scan/`, 200 dpi) and the boards actually used: DOIT DevKit V1
+51.65 × 28.1 mm with its holes 46.73 × 23.5 mm apart (Ø 3.0, the M2 screws leave 0.5 mm of play), PD
+trigger board 30.6 × 19.7 mm with two holes 5 mm apart in the middle of the short edge opposite its USB-C
+receptacle. Clone boards vary, so compare yours first. Everything is parametric in `halo2_case.scad`: the
+DevKit block at the top (`kit_l`, `kit_w`, `kit_hole_*`, `usb_*`, `btn*`), the PD board block (`pd_*`) and
+the stack height (`stack_h`, 12 mm: module and wires below the board, the board, the tallest part on top).
+
+Export a part with OpenSCAD:
 
 ```bash
-cd case && /opt/homebrew/bin/python3.14 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/opp dev   # after every change
-.venv/bin/opp all   # before printing
+openscad -D 'part="box"' -o box.stl halo2_case.scad    # also "lid", "box_base", "box_qr"
+```
+
+The project also uses the author's openscad-print-project tools (`opp`, pinned in `requirements.txt`,
+not publicly available) for collision and printability checks and the Bambu project file; the `.scad`
+file and the STLs work without them.
+
+**QR code:** `make_qr.py` writes `qr_repo.scad` for the URL at its top:
+
+```bash
+uv run --no-project --with qrcode python make_qr.py
 ```
