@@ -7,8 +7,8 @@ bindet das Board über die native ESPHome-API ein, ein MQTT-Broker ist nicht nö
 **Stand 2026-10-28:** Läuft auf einem DOIT ESP32 DevKit V1 im Heim-WLAN. Das Funkmodul antwortet (Chipversion `56 02 01`), die Lampe liefert alle 5 s ihren Status,
 und das Update per WLAN (OTA) funktioniert. Am 2026-10-27 hat der Selbsttest an Fabians Lampe 24 von 24
 Einstellungen umgesetzt und jede per frischer Statusabfrage bestätigt. Dabei waren 146 Funkpakete
-unterwegs, keines blieb unbestätigt. Die Fernbedienung wird mitgehört. Noch **nicht in Home Assistant**.
-Das erste Board, ein 38-Pin-DevKit, ist am 2026-10-27 beschädigt worden (siehe GND-Falle unten).
+unterwegs, keines blieb unbestätigt. Die Fernbedienung wird mitgehört. Seit 2026-10-28 ist das Board
+**in Home Assistant** eingebunden; ein Befehl aus HA kommt nach etwa einer Sekunde bestätigt an. Das erste Board, ein 38-Pin-DevKit, ist am 2026-10-27 beschädigt worden (siehe GND-Falle unten).
 
 ## Was es kann
 
