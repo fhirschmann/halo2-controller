@@ -2,7 +2,8 @@
 # print_project.py holds checks(ctx). Package defaults (H2S printer, folders) are left out.
 
 [project]
-status = "active"   # active | finished (opp finished: printed and in use, opp upgrade leaves it on its version)
+status = "finished"   # active | finished: printed and in use, opp upgrade leaves it on its version
+finished = 2026-10-28
 source = "halo2_case.scad"
 allowed_overlaps = [["screws", "box"], ["kit_screws", "box"], ["pd_screws", "lid"], ["usb_plug", "usbc_plug"]]   # screws cut their thread into the inserts and the PETG pilots; only one cable is plugged in at a time
 filaments = [

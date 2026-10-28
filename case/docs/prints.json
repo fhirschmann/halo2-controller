@@ -1,0 +1,20 @@
+{
+  "prints": [
+    {
+      "part": "box",
+      "date": "2026-10-28",
+      "commit": "d1ad760",
+      "path": "case/stl/box.stl",
+      "stl_sha256": "852dcbc07eaa5fe654b119876de3f74b898070dfaa613e941b6ed97587c41ec9",
+      "note": "PETG HF black + grey QR (A1/A3), fits the DOIT DevKit V1 and the PD board"
+    },
+    {
+      "part": "lid",
+      "date": "2026-10-28",
+      "commit": "d1ad760",
+      "path": "case/stl/lid.stl",
+      "stl_sha256": "47b37c20462b65f8c312c1df58ea97c8068291060d9fb8abb6c02a79b9a60b8e",
+      "note": "PETG HF black + grey QR (A1/A3), fits the DOIT DevKit V1 and the PD board"
+    }
+  ]
+}

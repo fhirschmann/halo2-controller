@@ -49,7 +49,7 @@ with both parts on one plate and the QR code assigned to a second filament.
 The dimensions come from flatbed scans (`scan/`, 200 dpi) and the boards actually used: DOIT DevKit V1
 51.65 × 28.1 mm with its holes 46.73 × 23.5 mm apart (Ø 3.0, the M2 screws leave 0.5 mm of play), PD
 trigger board 30.6 × 19.7 mm with two holes 5 mm apart in the middle of the short edge opposite its USB-C
-receptacle. Clone boards vary, so compare yours first. Everything is parametric in `halo2_case.scad`: the
+receptacle. The printed case fits these boards; clone boards vary, so compare yours first. Everything is parametric in `halo2_case.scad`: the
 DevKit block at the top (`kit_l`, `kit_w`, `kit_hole_*`, `usb_*`, `btn*`), the PD board block (`pd_*`) and
 the stack height (`stack_h`, 12 mm: module and wires below the board, the board, the tallest part on top).
 
