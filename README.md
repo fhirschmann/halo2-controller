@@ -1,136 +1,136 @@
 # halo2-controller
 
-Eigene ESPHome-Firmware, die eine **BenQ ScreenBar Halo 2** über Funk steuert: ein ESP32-DevKit mit einem
-**BM5602-60-1** (Holtek BC5602, derselbe 2,4-GHz-Chip wie in Lampe und Fernbedienung). Home Assistant
-bindet das Board über die native ESPHome-API ein, ein MQTT-Broker ist nicht nötig.
+Custom ESPHome firmware that controls a **BenQ ScreenBar Halo 2** over the air: an ESP32 dev board with a
+**BM5602-60-1** module (Holtek BC5602, the same 2.4 GHz chip as in the lamp and its remote). Home Assistant
+connects to the board through the native ESPHome API; no MQTT broker is needed.
 
-**Stand 2026-10-28:** Läuft auf einem DOIT ESP32 DevKit V1 im Heim-WLAN. Das Funkmodul antwortet (Chipversion `56 02 01`), die Lampe liefert alle 5 s ihren Status,
-und das Update per WLAN (OTA) funktioniert. Am 2026-10-27 hat der Selbsttest an Fabians Lampe 24 von 24
-Einstellungen umgesetzt und jede per frischer Statusabfrage bestätigt. Dabei waren 146 Funkpakete
-unterwegs, keines blieb unbestätigt. Die Fernbedienung wird mitgehört. Seit 2026-10-28 ist das Board
-**in Home Assistant** eingebunden; ein Befehl aus HA kommt nach etwa einer Sekunde bestätigt an. Das erste Board, ein 38-Pin-DevKit, ist am 2026-10-27 beschädigt worden (siehe GND-Falle unten).
+**Status 2026-10-28:** Runs on a DOIT ESP32 DevKit V1. The radio module answers (chip version `56 02 01`),
+the lamp reports its state every 5 s, and updates over WiFi (OTA) work. On 2026-10-27 the self-test applied
+24 of 24 settings on the author's lamp and confirmed each with a fresh status reply; 146 radio packets went
+out and none stayed unacknowledged. The remote is overheard. Since 2026-10-28 the board is **in Home
+Assistant**; a command from HA arrives acknowledged after about one second. The first board, a 38-pin
+DevKit, was damaged on 2026-10-27 (see the GND trap below). A printable case is in [`case/`](case/).
 
-## Was es kann
+## What it does
 
-| Entity in HA | Funktion |
+| Entity in HA | Function |
 |---|---|
-| Licht „ScreenBar“ | Ein/Aus, Gesamthelligkeit, Farbtemperatur 2700–6500 K (25-K-Schritte) |
-| Helligkeit vorne / hinten | Helligkeit je Lichtteil, 1–100 % |
-| Beleuchtung | Vorne, Hinten oder Beide |
-| Anwesenheitssensor | Aus, 3, 5, 10 oder 15 Minuten (Ultraschall-Abschaltung der Lampe) |
-| Auto-Helligkeit | Löst die automatische Helligkeitsanpassung der Lampe aus |
-| Funkstatus, Funkadresse, WLAN-Signal, Laufzeit | Diagnose |
-| Zustand erneut senden, Neustart | Wartung |
+| Light "ScreenBar" | On/off, overall brightness, colour temperature 2700–6500 K (25 K steps) |
+| Front brightness / Back brightness | Brightness of each light section, 1–100 % |
+| Lighting | Front, Back or Both |
+| Presence sensor | Off, 3, 5, 10 or 15 minutes (the lamp's ultrasonic auto-off) |
+| Auto brightness | Triggers the lamp's automatic brightness adjustment |
+| Radio status, Radio address, WiFi signal, Uptime | Diagnostics |
+| Resend state, Restart | Maintenance |
 
-Änderungen an der Fernbedienung kommen sofort an. Die Lampe selbst wird alle 5 s abgefragt; so fallen
-auch Änderungen auf, die die Lampe selbst vornimmt (Anwesenheit, Auto). Ein Belegungssignal („jemand sitzt
-da“) liefert die Lampe nicht. Der Sensor steuert nur ihr eigenes Abschalten.
+Changes made with the remote arrive immediately. The lamp itself is polled every 5 s, which also catches
+changes the lamp makes on its own (presence, auto). The lamp does not report occupancy ("someone is
+sitting here"); its sensor only controls its own switch-off.
 
-## Hardware und Verdrahtung
+## Hardware and wiring
 
-ESP32-Board mit ESP-WROOM-32 oder -WROVER (getestet mit einem 38-Pin-DevKit mit CP2102 und einem DOIT ESP32
-DevKit V1 mit 30 Pins). Das BM5602 liegt
-mit der Bauteilseite nach oben vor dir, die Antenne zeigt nach oben. Pad 1 ist dann das linke der neun Pads
-an der Unterkante.
+Any ESP32 board with an ESP-WROOM-32 or -WROVER (tested with a 38-pin DevKit with CP2102 and a 30-pin DOIT
+ESP32 DevKit V1). Hold the BM5602 component side up with the antenna pointing up; pad 1 is then the
+leftmost of the nine pads along the bottom edge.
 
-| BM5602-Pad | Signal | DevKit-Pin | Kabel (Fabians Exemplar) |
+| BM5602 pad | Signal | ESP32 pin | Wire (author's build) |
 |---|---|---|---|
-| 1 | VSS | GND | rot (!) |
-| 2 | VDD | 3V3, **nie 5 V** | hellgrün |
-| 4 | CSN | G5 | gelb, links |
-| 5 | SCK | G18 | schwarz |
-| 6 | GIO2 (SDO) | G19 | blau |
-| 7 | SDIO | G22 (bis 2026-10-27 G23) | gelb, rechts |
-| 8 | GIO3/TBCLK | G25 | dunkelgrün, **wird nicht benutzt** |
-| 3, 9 | GIO1, GIO4 | frei | weiß, rot rechts (ungenutzt angelötet) |
+| 1 | VSS | GND | red (!) |
+| 2 | VDD | 3V3, **never 5 V** | light green |
+| 4 | CSN | G5 | yellow, left |
+| 5 | SCK | G18 | black |
+| 6 | GIO2 (SDO) | G19 | blue |
+| 7 | SDIO | G22 (G23 until 2026-10-27) | yellow, right |
+| 8 | GIO3/TBCLK | G25 | dark green, **unused** |
+| 3, 9 | GIO1, GIO4 | not connected | white, red right (soldered, unused) |
 
-- Auf dem DOIT DevKit V1 (Antenne oben, USB unten) sind die Pins als D5, D18 usw. beschriftet. Bis auf D25
-  liegen alle in der rechten Reihe: D22 oben, D19, D18 und D5 in der Mitte, GND und 3V3 (quadratisches Pad)
-  ganz unten. D25 liegt in der linken Reihe.
-- Pad 1 erkennst du mit dem Durchgangsprüfer: Nur dieses Pad piepst gegen die zwei seitlichen Massepads.
-- G18 und G19 sind VSPI-Pins, CS liegt auf G5 (Strapping-Pin, als CS unkritisch). SDIO liegt auf G22, weil
-  nicht jedes Board G23 herausführt; die SPI-Matrix des ESP32 legt das Signal bei 1 MHz ohne Nachteil um.
-- **GND-Falle:** Manche DevKit-Nachbauten bedrucken den Pin neben 5V mit „GND“. Beim Original-DevKitC liegt
-  dort CMD, eine Leitung zum Flash, und auch auf Fabians Board war er nicht mit GND verbunden. Am 2026-10-27
-  hing das Minus eines USB-C-PD-Boards daran, das zudem auf 9 V eingestellt war; der Rückstrom lief über die Schutzdiode der Flash-Leitung, und
-  das Board startet seitdem nicht mehr. Jeden GND-Pin vor dem Anlöten per Durchgangsprüfer gegen das Gehäuse
-  der USB-Buchse prüfen.
-- **USB-C-PD-Board als zweite Stromquelle:** vorher auf 5 V stellen (laut Tabelle auf dem Board S1, S2 und S3
-  auf 0) und den Ausgang messen. Plus an VIN, Minus an das GND-Pad direkt darüber (DOIT: linke Reihe unten).
-  Immer nur eine Stromquelle einstecken.
-- Pad 8 hängt nur als Reserve für das TBCLK-Verfahren von NickCao dran (siehe unten).
-- Die Modulantenne gehört weg von Metall und weg von der ESP32-Antenne.
+- On the DOIT DevKit V1 (antenna up, USB down) the pins are labelled D5, D18 and so on. All but D25 are in
+  the right-hand row: D22 at the top, D19, D18 and D5 in the middle, GND and 3V3 (square pad) at the bottom.
+  D25 is in the left-hand row.
+- Find pad 1 with a continuity tester: it is the only pad that beeps against the two ground pads at the sides.
+- G18 and G19 are VSPI pins, CS is on G5 (a strapping pin, harmless as CS). SDIO is on G22 because not every
+  board breaks out G23; the ESP32's SPI matrix routes the signal there with no drawback at 1 MHz.
+- **GND trap:** Some DevKit clones label the pin next to 5V "GND". On the original DevKitC that pin is CMD, a
+  flash line, and on the author's board it was not connected to GND either. On 2026-10-27 the negative
+  output of a USB-C PD trigger board was soldered to it, and the trigger board was set to 9 V; the return
+  current flowed through the protection diode of the flash line, and the board has not booted since. Check
+  every GND pin for continuity against the USB receptacle shell before soldering.
+- **USB-C PD trigger board as a second power input:** set it to 5 V first (per the table printed on the
+  board, S1, S2 and S3 at 0) and measure its output. Positive to VIN, negative to the GND pad right next to
+  it (DOIT: bottom of the left-hand row). Only ever plug in one power source.
+- Pad 8 is connected only as a spare for NickCao's TBCLK method (see below).
+- Keep the module antenna away from metal and away from the ESP32 antenna.
 
-## Bauen und Flashen
+## Building and flashing
 
 ```bash
-cp secrets.example.yaml secrets.yaml   # WLAN eintragen, Schlüssel erzeugen
+cp secrets.example.yaml secrets.yaml   # enter WiFi, generate the keys
 uvx --python 3.13 esphome run screenbar-halo2.yaml --device /dev/cu.usbserial-0001
 ```
 
-Danach geht das Flashen per WLAN (`--device screenbar-halo2.local`). Reicht mDNS nicht bis zum Rechner,
-die IP nehmen (`esphome run --device <IP> …`). Den OTA-Zugang verschlüsselt der
-API-Schlüssel. `secrets.yaml` liegt nie im Repo. Die ESPHome-Toolchain landet beim ersten Build in
-`~/Library/Caches/esphome` (rund 1,7 GB).
+After that, flash over WiFi (`--device screenbar-halo2.local`). If mDNS does not reach the board from your
+computer's network, use its IP address (`esphome run --device <IP> …`). The API key encrypts OTA access.
+`secrets.yaml` never goes into the repository. On the first build the ESPHome toolchain lands in
+`~/Library/Caches/esphome` (about 1.7 GB, macOS).
 
-Die Lampenadresse steht in `screenbar-halo2.yaml` (`radio_address`, Registerreihenfolge). Für eine andere
-Lampe ermittelst du sie mit kuzmin-nos `find_halo2_address.py` unter MicroPython: Hinteres Licht an der
-Fernbedienung auf 10 % und 3925 K stellen, dann gibt das Skript die vier Bytes aus.
+The lamp address is in `screenbar-halo2.yaml` (`radio_address`, register order). For another lamp, find it
+with kuzmin-no's `find_halo2_address.py` under MicroPython: set the back light to 10 % and 3925 K on the
+remote, then the script prints the four bytes.
 
-### Selbsttest
+### Self-test
 
 ```bash
 uvx --python 3.13 esphome -s self_test true -s wifi_reboot_timeout 0s run screenbar-halo2.yaml --device /dev/cu.usbserial-0001
 ```
 
-Etwa 10 s nach dem Start liest der Test den Ausgangszustand. In drei Runden verstellt er dann nacheinander
-Helligkeit hinten, Helligkeit vorne, Farbtemperatur, Abschaltzeit, Anwesenheitssensor, Lichtauswahl und
-Ein/Aus. Jeder Schritt muss von einer frischen Statusantwort der Lampe bestätigt werden. In der letzten
-Runde bleibt die Lampe eine Minute aus. Am Ende steht der Ausgangszustand wieder und im Log die Zeile
-`RESULT: …`. Sichtbar sind nur das kurze „nur vorne“ und das Aus/Ein.
+About 10 s after boot the test reads the initial state. In three rounds it then changes back brightness,
+front brightness, colour temperature, timeout, presence sensor, light selection and on/off, one after the
+other. Each step must be confirmed by a fresh status reply from the lamp. In the last round the lamp stays
+off for a minute. At the end the initial state is restored and the log shows a `RESULT: …` line. The only
+visible effects are a short "front only" and the off/on.
 
-## Was man über den Funk wissen muss
+## What to know about the radio
 
-Grundlage sind [NickCaos Protokollbeschreibung](https://github.com/NickCao/benq-screenbar-halo2-esphome/blob/main/docs/PROTOCOL.md)
-und eigene Messungen vom 2026-10-27 an Fabians Lampe.
+Based on [NickCao's protocol description](https://github.com/NickCao/benq-screenbar-halo2-esphome/blob/main/docs/PROTOCOL.md)
+and the author's own measurements on 2026-10-27.
 
-- **Paketverarbeitung des Chips statt Taktsendung.** NickCaos BM5602-Stand (`f7fa99bf`) sendet bitweise im
-  Takt von Pad 8 (TBCLK). An dieser Lampe kam davon nichts an (0 von 15 Änderungen, beide Taktflanken).
-  Die Paketverarbeitung des BC5602 (Auto-ACK mit Antwort-Nutzlast) wie bei kuzmin-no funktioniert dagegen
-  zuverlässig. Bei NickCaos Lampe war es genau umgekehrt.
-- **IRQ-Flags nur im Schlafmodus löschen.** Die Flags in IRQ1 werden mit 1 gelöscht und nur, solange der
-  Chip schläft (`0x0C`). Im Sendemodus wirkt das Schreiben nicht. Ein altes „gesendet“ lässt dann ein nie
-  gesendetes Paket bestätigt aussehen, der Sende-FIFO läuft voll und der Chip hängt. kuzmin-no schreibt 0
-  im Sendemodus und hat deshalb diesen Fehler.
-- **Nach MAX_RT nur ein Software-Reset.** Bleibt die Bestätigung aus, behält der Chip Paket und Flag.
-  `FLUSH_TX` und Flag-Löschen reichen nicht. Der Treiber setzt den Chip zurück (`0x08`), konfiguriert neu
-  und sendet bis zu dreimal. Das passiert vor allem direkt nach dem Einschalten der Lampe, die dann kurz
-  beschäftigt ist.
-- **Antworten hängen hinterher.** Die Lampe legt ihre Antwort vorab in die Bestätigung. Die erste Antwort
-  nach einem Befehl zeigt oft noch den alten Zustand. Deshalb gilt NickCaos Ablauf: eine Abfrage zum
-  Auffrischen, 500 ms später eine zum Lesen, und übernommen wird nur eine Antwort auf Befehl `04`.
-  Aufeinanderfolgende Statusabfragen unterscheiden sich zusätzlich im hinteren Farbtemperaturfeld, das `04`
-  nicht anwendet, damit die Lampe sie nicht als Wiederholung verwirft.
-- **Einschalten** schickt `03` (Einstellungen) und danach `02` (Strom). `03` allein schaltet nicht ein.
-- **Chipversion:** Befehl `0x9F` liefert `56 02 01`. kuzmin-no liest mit `0xDF` und bekommt `01 00 0F`.
-- **MicroPython-Gotcha:** `mpremote` setzt das DevKit beim Verbinden zurück. Deshalb immer
+- **Use the chip's packet engine, not clocked transmission.** NickCao's BM5602 version (`f7fa99bf`) sends
+  bit by bit, clocked by pad 8 (TBCLK). Nothing of that reached this lamp (0 of 15 changes, both clock
+  edges). The BC5602's packet engine (auto-ACK with reply payload), as used by kuzmin-no, works reliably.
+  NickCao's lamp behaved the other way round.
+- **Clear IRQ flags only in sleep mode.** The flags in IRQ1 are cleared by writing 1, and only while the
+  chip sleeps (`0x0C`). In TX mode the write has no effect. A stale "sent" flag then makes a packet that
+  was never sent look acknowledged, the TX FIFO fills up and the chip hangs. kuzmin-no writes 0 in TX mode
+  and therefore has this bug.
+- **After MAX_RT only a software reset helps.** If the acknowledgement does not arrive, the chip keeps both
+  packet and flag; `FLUSH_TX` and clearing the flag are not enough. The driver resets the chip (`0x08`),
+  reconfigures it and sends up to three times. This happens mostly right after the lamp is switched on,
+  while it is briefly busy.
+- **Replies lag behind.** The lamp preloads its reply into the acknowledgement, so the first reply after a
+  command often still shows the old state. Hence NickCao's sequence: one query to refresh, another 500 ms
+  later to read, and only a reply to command `04` is accepted. Consecutive status queries also differ in
+  the back colour temperature field, which `04` does not apply, so the lamp does not drop them as repeats.
+- **Switching on** sends `03` (settings) and then `02` (power). `03` alone does not switch the lamp on.
+- **Chip version:** command `0x9F` returns `56 02 01`. kuzmin-no reads with `0xDF` and gets `01 00 0F`.
+- **MicroPython gotcha:** `mpremote` resets the DevKit when it connects, so always use
   `mpremote connect /dev/cu.usbserial-0001 sleep 3 + …`.
 
-## Aufbau
+## Layout
 
-| Datei | Inhalt |
+| File | Contents |
 |---|---|
-| `screenbar-halo2.yaml` | ESPHome-Konfiguration (Pins, Adresse, Entities) |
-| `components/halo2/bm5602_radio.h` | BC5602-Treiber: Senden mit Bestätigung, passives Mithören, Chip-Reset |
-| `components/halo2/halo2.cpp` | Ablauf: Befehle, Statusabfragen, Fernbedienung, Selbsttest |
-| `components/halo2/halo2_protocol.h` | Nutzlast, CRC, Dekodierung |
-| `components/halo2/command_queue.h`, `bridge_state.h`, `lamp_state.h`, `halo2_light.cpp` | Unverändert von NickCao |
+| `screenbar-halo2.yaml` | ESPHome configuration (pins, address, entities) |
+| `components/halo2/bm5602_radio.h` | BC5602 driver: send with acknowledgement, passive listening, chip reset |
+| `components/halo2/halo2.cpp` | Flow: commands, status queries, remote, self-test |
+| `components/halo2/halo2_protocol.h` | Payload, CRC, decoding |
+| `components/halo2/command_queue.h`, `bridge_state.h`, `lamp_state.h`, `halo2_light.cpp` | Unchanged from NickCao |
+| `case/` | 3D-printed case (OpenSCAD) |
 
-## Herkunft und Lizenz
+## Origin and licence
 
-MIT (siehe `LICENSE`). Die ESPHome-Komponente stammt aus
-[NickCao/benq-screenbar-halo2-esphome](https://github.com/NickCao/benq-screenbar-halo2-esphome) (Commit
-`dd110a8`, für den LR1121-Funkchip). Die LR1121-Funkschicht und die Adresssuche sind durch einen eigenen
-BM5602-Treiber ersetzt. Die Registerfolge für Senden und Mithören stammt aus
+MIT (see `LICENSE`). The ESPHome component comes from
+[NickCao/benq-screenbar-halo2-esphome](https://github.com/NickCao/benq-screenbar-halo2-esphome) (commit
+`dd110a8`, for the LR1121 radio chip). The LR1121 radio layer and the address search are replaced by a
+BM5602 driver of its own. The register sequence for sending and listening comes from
 [kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration](https://github.com/kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration)
-und NickCaos älterem BM5602-Stand.
+and NickCao's earlier BM5602 version.

@@ -1,7 +1,7 @@
-# BenQ ScreenBar HALO 2 über BM5602-60-1 an einem ESP32-DevKit (ESP-WROOM-32).
-# Verdrahtung und Hintergrund: README.md
+# BenQ ScreenBar HALO 2 via a BM5602-60-1 on an ESP32 dev board (ESP-WROOM-32).
+# Wiring and background: README.md
 substitutions:
-  # Testbuild: esphome -s self_test true -s wifi_reboot_timeout 0s run screenbar-halo2.yaml
+  # Test build: esphome -s self_test true -s wifi_reboot_timeout 0s run screenbar-halo2.yaml
   self_test: "false"
   wifi_reboot_timeout: 15min
 
@@ -40,12 +40,12 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  # Verschlüsselt mit dem API-Schlüssel
+  # Encrypted with the API key
   - platform: esphome
     encryption:
 
-# VSPI-Pins, aber SDIO auf GPIO22: das WROVER-E-Board mit USB-C führt GPIO23 nicht heraus
-# (die SPI-Matrix legt jedes Signal auf jeden Pin, bei 1 MHz ohne Nachteil)
+# VSPI pins, but SDIO on GPIO22: not every board breaks out GPIO23
+# (the ESP32 SPI matrix routes any signal to any pin, no drawback at 1 MHz)
 spi:
   clk_pin: GPIO18   # SCK  (BM5602 Pad 5)
   mosi_pin: GPIO22  # SDIO (BM5602 Pad 7)
@@ -54,50 +54,50 @@ spi:
 halo2:
   id: screenbar
   cs_pin: GPIO5     # CSN  (BM5602 Pad 4)
-  # Adresse der eigenen Lampe (Registerreihenfolge), mit kuzmin-no find_halo2_address.py ermittelt
+  # Address of your own lamp (register order), found with kuzmin-no's find_halo2_address.py
   radio_address: [0xB1, 0xF6, 0xA8, 0xAB]
   radio_channel: 5
   self_test: ${self_test}
   light:
     id: screenbar_light
-    # Leerer Name: Die Licht-Entity heißt in HA wie das Gerät („ScreenBar“).
+    # Empty name: the light entity takes the device name in HA ("ScreenBar").
     name: ""
     icon: mdi:wall-sconce-flat
   front_brightness:
     id: front_brightness
-    name: "Helligkeit vorne"
+    name: "Front brightness"
     initial_value: 78
   back_brightness:
     id: back_brightness
-    name: "Helligkeit hinten"
+    name: "Back brightness"
     icon: mdi:wall-sconce-flat-outline
     initial_value: 10
   sections:
     id: lamp_sections
-    name: "Beleuchtung"
+    name: "Lighting"
   ultrasonic:
     id: ultrasonic_sensor
-    name: "Anwesenheitssensor"
+    name: "Presence sensor"
   auto_button:
-    name: "Auto-Helligkeit"
+    name: "Auto brightness"
   radio_status:
     id: radio_status
-    name: "Funkstatus"
+    name: "Radio status"
   radio_address_sensor:
-    name: "Funkadresse"
+    name: "Radio address"
 
 button:
   - platform: template
-    name: "Zustand erneut senden"
+    name: "Resend state"
     entity_category: diagnostic
     on_press:
       - lambda: id(screenbar).resend();
   - platform: restart
-    name: "Neustart"
+    name: "Restart"
 
 sensor:
   - platform: wifi_signal
-    name: "WLAN-Signal"
+    name: "WiFi signal"
     update_interval: 60s
   - platform: uptime
-    name: "Laufzeit"
+    name: "Uptime"

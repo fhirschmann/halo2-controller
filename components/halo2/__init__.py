@@ -49,8 +49,8 @@ BRIGHTNESS_SCHEMA = number.number_schema(
 })
 
 # Option order is the wire/index order used by the C++ select controls.
-SECTION_OPTIONS = ["Vorne", "Hinten", "Beide"]
-ULTRASONIC_OPTIONS = ["Aus", "3 Minuten", "5 Minuten", "10 Minuten", "15 Minuten"]
+SECTION_OPTIONS = ["Front", "Back", "Both"]
+ULTRASONIC_OPTIONS = ["Off", "3 minutes", "5 minutes", "10 minutes", "15 minutes"]
 
 CONFIG_SCHEMA = cv.All(
     cv.Schema(
