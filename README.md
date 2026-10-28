@@ -4,11 +4,11 @@ Eigene ESPHome-Firmware, die eine **BenQ ScreenBar Halo 2** über Funk steuert: 
 **BM5602-60-1** (Holtek BC5602, derselbe 2,4-GHz-Chip wie in Lampe und Fernbedienung). Home Assistant
 bindet das Board über die native ESPHome-API ein, ein MQTT-Broker ist nicht nötig.
 
-**Stand 2026-10-27:** An Fabians Lampe getestet. Der Selbsttest hat 24 von 24 Einstellungen umgesetzt und
-jede per frischer Statusabfrage bestätigt. Dabei waren 146 Funkpakete unterwegs, keines blieb unbestätigt.
-Die Fernbedienung wird mitgehört. Noch **nicht in Home Assistant**: Das erste Board ist am Abend
-beschädigt worden (siehe GND-Falle unten), Ersatz mit USB-C ist bestellt. Die WLAN-Daten stehen im
-lokalen `secrets.yaml`, die Firmware ist dafür gebaut.
+**Stand 2026-10-28:** Läuft auf einem DOIT ESP32 DevKit V1 im Heim-WLAN. Das Funkmodul antwortet (Chipversion `56 02 01`), die Lampe liefert alle 5 s ihren Status,
+und das Update per WLAN (OTA) funktioniert. Am 2026-10-27 hat der Selbsttest an Fabians Lampe 24 von 24
+Einstellungen umgesetzt und jede per frischer Statusabfrage bestätigt. Dabei waren 146 Funkpakete
+unterwegs, keines blieb unbestätigt. Die Fernbedienung wird mitgehört. Noch **nicht in Home Assistant**.
+Das erste Board, ein 38-Pin-DevKit, ist am 2026-10-27 beschädigt worden (siehe GND-Falle unten).
 
 ## Was es kann
 
@@ -28,14 +28,15 @@ da“) liefert die Lampe nicht. Der Sensor steuert nur ihr eigenes Abschalten.
 
 ## Hardware und Verdrahtung
 
-ESP32-Board mit ESP-WROOM-32 oder -WROVER (getestet mit einem 38-Pin-DevKit mit CP2102). Das BM5602 liegt
+ESP32-Board mit ESP-WROOM-32 oder -WROVER (getestet mit einem 38-Pin-DevKit mit CP2102 und einem DOIT ESP32
+DevKit V1 mit 30 Pins). Das BM5602 liegt
 mit der Bauteilseite nach oben vor dir, die Antenne zeigt nach oben. Pad 1 ist dann das linke der neun Pads
 an der Unterkante.
 
 | BM5602-Pad | Signal | DevKit-Pin | Kabel (Fabians Exemplar) |
 |---|---|---|---|
-| 1 | VSS | GND (rechts oben) | rot (!) |
-| 2 | VDD | 3V3 (links oben), **nie 5 V** | hellgrün |
+| 1 | VSS | GND | rot (!) |
+| 2 | VDD | 3V3, **nie 5 V** | hellgrün |
 | 4 | CSN | G5 | gelb, links |
 | 5 | SCK | G18 | schwarz |
 | 6 | GIO2 (SDO) | G19 | blau |
@@ -43,6 +44,9 @@ an der Unterkante.
 | 8 | GIO3/TBCLK | G25 | dunkelgrün, **wird nicht benutzt** |
 | 3, 9 | GIO1, GIO4 | frei | weiß, rot rechts (ungenutzt angelötet) |
 
+- Auf dem DOIT DevKit V1 (Antenne oben, USB unten) sind die Pins als D5, D18 usw. beschriftet. Bis auf D25
+  liegen alle in der rechten Reihe: D22 oben, D19, D18 und D5 in der Mitte, GND und 3V3 (quadratisches Pad)
+  ganz unten. D25 liegt in der linken Reihe.
 - Pad 1 erkennst du mit dem Durchgangsprüfer: Nur dieses Pad piepst gegen die zwei seitlichen Massepads.
 - G18 und G19 sind VSPI-Pins, CS liegt auf G5 (Strapping-Pin, als CS unkritisch). SDIO liegt auf G22, weil
   nicht jedes Board G23 herausführt; die SPI-Matrix des ESP32 legt das Signal bei 1 MHz ohne Nachteil um.
@@ -61,7 +65,8 @@ cp secrets.example.yaml secrets.yaml   # WLAN eintragen, Schlüssel erzeugen
 uvx --python 3.13 esphome run screenbar-halo2.yaml --device /dev/cu.usbserial-0001
 ```
 
-Danach geht das Flashen per WLAN (`--device screenbar-halo2.local`). Den OTA-Zugang verschlüsselt der
+Danach geht das Flashen per WLAN (`--device screenbar-halo2.local`). Reicht mDNS nicht bis zum Rechner,
+die IP nehmen (`esphome run --device <IP> …`). Den OTA-Zugang verschlüsselt der
 API-Schlüssel. `secrets.yaml` liegt nie im Repo. Die ESPHome-Toolchain landet beim ersten Build in
 `~/Library/Caches/esphome` (rund 1,7 GB).
 

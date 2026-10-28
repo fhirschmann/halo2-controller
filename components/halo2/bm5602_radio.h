@@ -62,7 +62,11 @@ class BM5602Radio : public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_P
     address_ = address;
     channel_ = channel;
     replies_count_ = 0;
-    spi_setup();
+    // Register the SPI device once; a retry after a failed probe only repeats the chip init.
+    if (!spi_registered_) {
+      spi_setup();
+      spi_registered_ = true;
+    }
     // An ESP32 reset does not power-cycle the module: start from a chip reset.
     if (!init_chip_()) {
       std::snprintf(error_, sizeof(error_), "BM5602 not found (version %02X %02X %02X)", version_[0], version_[1],
@@ -293,7 +297,7 @@ class BM5602Radio : public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_P
   uint32_t last_irq_{0};
   std::array<uint8_t, halo2_protocol::PAYLOAD_SIZE> last_reply_{};
   uint8_t last_status_{0};
-  bool ready_{false}, tx_completed_{false};
+  bool ready_{false}, tx_completed_{false}, spi_registered_{false};
   char error_[64]{};
 };
 
