@@ -272,8 +272,9 @@ void Halo2::receive_packet_() {
   if (radio_.rx_count() != previous_rx_count) {
     // Log every passive capture, including rejected ones, for diagnostics.
     const auto &frame = radio_.rx_frame();
-    ESP_LOGD(TAG, "RX passive frame: %s, decoded %s", format_hex_pretty(frame.data(), radio_.rx_length()).c_str(),
-             YESNO(received_state));
+    char frame_hex[format_hex_pretty_size(BM5602Radio::MAX_RAW_SIZE)];
+    ESP_LOGD(TAG, "RX passive frame: %s, decoded %s",
+             format_hex_pretty_to(frame_hex, frame.data(), radio_.rx_length(), '.'), YESNO(received_state));
   }
   if (!received_state) return;
   const uint32_t now = millis();
@@ -322,9 +323,10 @@ void Halo2::poll_status_() {
   if (status_poll_.expire(now)) {
     ++status_timeouts_;
     const auto &reply = radio_.last_reply();
+    char reply_hex[format_hex_pretty_size(protocol::PAYLOAD_SIZE)];
     ESP_LOGD(TAG, "Lamp status query timed out (%u consecutive, IRQ %02" PRIX32 ", STATUS %02X, last ACK payload %s)",
              status_poll_.failures(), radio_.last_irq(), radio_.last_status(),
-             format_hex_pretty(reply.data(), reply.size()).c_str());
+             format_hex_pretty_to(reply_hex, reply, '.'));
     if (status_poll_.failures() >= StatusPoll::FAILURE_THRESHOLD) {
       status_set_warning();
       publish_status_("Lamp status unavailable; retaining last known state");
